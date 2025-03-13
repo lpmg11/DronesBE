@@ -4,8 +4,11 @@ import (
 	"drones-be/internal/config"
 	"drones-be/internal/models"
 	"drones-be/internal/storage"
-	"github.com/spf13/viper"
+	"drones-be/internal/utilities"
 	"log"
+	"math"
+
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -22,9 +25,14 @@ func main() {
 	err := pg.DB.AutoMigrate(
 		&models.User{},
 		&models.Provider{},
+		&models.Drone{},
 	)
 	if err != nil {
 		log.Fatal("Error realizando las migraciones: ", err)
 	}
+
+	log.Println("Migraciones realizadas correctamente")
+
+	log.Println(math.Round(utilities.Distance(14.5995, -90.5153, 14.6225, -90.5135)*100) / 100)
 
 }
