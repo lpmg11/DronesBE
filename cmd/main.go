@@ -3,6 +3,7 @@ package main
 import (
 	"drones-be/internal/config"
 	"drones-be/internal/models"
+	router "drones-be/internal/routes"
 	"drones-be/internal/storage"
 	"drones-be/internal/utilities"
 	"log"
@@ -34,5 +35,8 @@ func main() {
 	log.Println("Migraciones realizadas correctamente")
 
 	log.Println(math.Round(utilities.Distance(14.5995, -90.5153, 14.6225, -90.5135)*100) / 100)
+
+	router := router.Router(cfn, pg)
+	router.Run()
 
 }
