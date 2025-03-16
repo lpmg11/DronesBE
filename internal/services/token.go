@@ -33,16 +33,25 @@ func (s *TokenServices) GenerateToken(userID, role string) (string, error){
 
 }
 
-func (s *TokenServices) VerifyToken(tokenString string) (*jwt.Token, error){
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error){
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok{
+func (s *TokenServices) VerifyToken(tokenString string) (string, string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
 		return []byte(s.cfg.JWTSecret), nil
 	})
-	if err != nil{
-		return nil, err
+	if err != nil {
+		return "", "", err
 	}
 
-	return token, nil
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID, userIDOk := claims["userID"].(string)
+		role, roleOk := claims["role"].(string)
+		if !userIDOk || !roleOk {
+			return "", "", jwt.ErrInvalidKey
+		}
+		return userID, role, nil
+	}
+
+	return "", "", jwt.ErrInvalidKey
 }

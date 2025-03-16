@@ -7,5 +7,6 @@ func RegisterRoutes(r *gin.RouterGroup, h *AuthHandler) {
 	{
 		authGroup.POST("/register", h.RegisterUser)
 		authGroup.POST("/login", h.LoginUser)
+		authGroup.POST("/logout", h.LogoutUser)
 	}
 }
