@@ -34,7 +34,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authSrv.RegisterUser(req.Username, req.Password, "user")
+	user, err := h.authSrv.RegisterUser(req.Username, req.Password, "admin")
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Error al registrar usuario", "detalles": err.Error()})
 		return

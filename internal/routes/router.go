@@ -1,9 +1,10 @@
 package router
 
 import (
+	admindrone "drones-be/api/v1/admin/drone"
+	adminwarehouse "drones-be/api/v1/admin/warehouse"
 	"drones-be/api/v1/auth"
 	"drones-be/internal/config"
-	"drones-be/internal/middleware"
 	"drones-be/internal/services"
 	"drones-be/internal/storage"
 	"net/http"
@@ -46,22 +47,11 @@ func Router(cfn *config.Config, pg *storage.PostgresClient) *gin.Engine {
 	authHandler := auth.NewAuthHandler(authSrv, tokenSrv, cfn)
 	auth.RegisterRoutes(v1, authHandler)
 
-	protected := v1.Group("/protected")
-	protected.Use(middleware.AuthMiddleware(tokenSrv))
+	warehouseHandler := adminwarehouse.NewWarehouseHandler(pg)
+	adminwarehouse.RegisterRoutes(v1, warehouseHandler, tokenSrv)
 
-	protected.GET("/ping", func(ctx *gin.Context) {
-		userid, exist := ctx.Get("userID")
-		if !exist {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized",
-			})
-			return
-		}
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-			"userID":  userid,
-		})
-	})
+	droneHandler := admindrone.NewDroneHandler(pg.DB)
+	admindrone.RegisterRoutes(v1, droneHandler, tokenSrv)
 
 	return router
 
