@@ -3,6 +3,7 @@ package auth
 import (
 	"drones-be/internal/config"
 	"drones-be/internal/services"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	}
 
 	user, err := h.authSrv.RegisterUser(req.Username, req.Password, "admin")
+	log.Print(err)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Error al registrar usuario", "detalles": err.Error()})
 		return
@@ -83,7 +85,7 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 
 func (h *AuthHandler) LogoutUser(c *gin.Context) {
 
-	c.SetCookie("token", "", 0, "/", "localhost", false, true)
+	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.JSON(200, gin.H{"message": "Sesión cerrada exitosamente"})
 
 }

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"drones-be/internal/services"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +11,7 @@ func AuthMiddleware(tokenService *services.TokenServices) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("token")
 		if err != nil {
-			c.JSON(401, gin.H{"error": "no autorizado"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "no autorizado"})
 			c.Abort()
 			return
 		}
