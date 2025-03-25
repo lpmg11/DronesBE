@@ -107,7 +107,7 @@ func (h *DroneHandler) GetDrones(c *gin.Context) {
 
 	verifyIsAdmin(c)
 
-	if err := h.db.Find(&drones).Error; err != nil {
+	if err := h.db.Preload("Warehouse").Preload("Model").Find(&drones).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Error al obtener drones", "detalles": err.Error()})
 		return
 	}

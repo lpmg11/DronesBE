@@ -17,14 +17,14 @@ func AuthMiddleware(tokenService *services.TokenServices) gin.HandlerFunc {
 		}
 
 		if token == "" {
-			c.JSON(401, gin.H{"error": "no autorizado"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "no autorizado"})
 			c.Abort()
 			return
 		}
 
 		userID, role, err := tokenService.VerifyToken(token)
 		if err != nil {
-			c.JSON(401, gin.H{"error": "no autorizado"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "no autorizado"})
 			c.Abort()
 			return
 		}

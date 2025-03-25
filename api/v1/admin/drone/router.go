@@ -15,7 +15,7 @@ func RegisterRoutes(r *gin.RouterGroup, h *DroneHandler, token *services.TokenSe
 	{
 		droneGroup.POST("/model", h.CreateDroneModel)
 		droneGroup.GET("/model", h.GetDroneModel)
-		droneGroup.POST("/", h.CreateDrone)
-		droneGroup.GET("/", h.GetDrones)
+		droneGroup.POST("", h.CreateDrone)
+		droneGroup.GET("", h.GetDrones)
 	}
 }

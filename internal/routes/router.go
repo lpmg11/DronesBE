@@ -2,8 +2,13 @@ package router
 
 import (
 	admindrone "drones-be/api/v1/admin/drone"
+	admintransactions "drones-be/api/v1/admin/transactions"
 	adminwarehouse "drones-be/api/v1/admin/warehouse"
 	"drones-be/api/v1/auth"
+	providerproducts "drones-be/api/v1/provider/products"
+	providerprofile "drones-be/api/v1/provider/profile"
+	userbudget "drones-be/api/v1/user/budget"
+	storeproducts "drones-be/api/v1/user/store/products"
 	"drones-be/internal/config"
 	"drones-be/internal/services"
 	"drones-be/internal/storage"
@@ -52,6 +57,21 @@ func Router(cfn *config.Config, pg *storage.PostgresClient) *gin.Engine {
 
 	droneHandler := admindrone.NewDroneHandler(pg.DB)
 	admindrone.RegisterRoutes(v1, droneHandler, tokenSrv)
+
+	profileHandler := providerprofile.NewProfileHandler(pg.DB)
+	providerprofile.RegisterRoutes(v1, profileHandler, tokenSrv)
+
+	providerProductsHandler := providerproducts.NewProductHandler(pg.DB)
+	providerproducts.RegisterRoutes(v1, providerProductsHandler, tokenSrv)
+
+	productsHandler := storeproducts.NewProductHandler(pg.DB)
+	storeproducts.RegisterRoutes(v1, productsHandler, tokenSrv)
+
+	budgetHandler := userbudget.NewBudgetHandler(pg.DB)
+	userbudget.RegisterRoutes(v1, budgetHandler, tokenSrv)
+
+	adminTransactionsHandler := admintransactions.NewTransactionHandler(pg.DB)
+	admintransactions.RegisterRoutes(v1, adminTransactionsHandler, tokenSrv)
 
 	return router
 

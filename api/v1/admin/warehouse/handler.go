@@ -61,13 +61,20 @@ func (h *WarehouseHandler) CreateWarehouse(c *gin.Context) {
 
 func (h *WarehouseHandler) GetWarehouses(c *gin.Context) {
 	var warehouses []models.Warehouse
+	var providers []models.Provider
 
-	if err := h.db.Find(&warehouses).Error; err != nil {
+	if err := h.db.Preload("Drones").Preload("Drones.Model").Find(&warehouses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener almacenes", "detalles": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"warehouses": warehouses})
+	if err := h.db.Find(&providers).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener proveedores", "detalles": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"warehouses": warehouses,
+		"providers": providers})
 }
 
 type WarehouseWithDistance struct {
@@ -79,7 +86,7 @@ func (h *WarehouseHandler) GetWarehousesByProximity(c *gin.Context) {
 	var req struct {
 		Latitude  float64 `json:"latitude"`
 		Longitude float64 `json:"longitude"`
-		Radius    float64 `json:"radius"` // en kilómetros
+		Radius    float64 `json:"radius"` // en metros
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -90,17 +97,19 @@ func (h *WarehouseHandler) GetWarehousesByProximity(c *gin.Context) {
 	var warehouses []WarehouseWithDistance
 
 	query := `
-		SELECT 
-			id, name, latitude, longitude,
-			earth_distance(ll_to_earth(?, ?), ll_to_earth(latitude, longitude)) AS distance
-		FROM warehouses
-		WHERE earth_box(ll_to_earth(?, ?), ? * 1000) @> ll_to_earth(latitude, longitude)
-		ORDER BY distance
-	`
-
+	SELECT 
+		id, name, latitude, longitude,
+		earth_distance(ll_to_earth(?, ?), ll_to_earth(latitude, longitude)) AS distance
+	FROM warehouses
+	WHERE earth_box(ll_to_earth(?, ?), ?) @> ll_to_earth(latitude, longitude)
+	  AND earth_distance(ll_to_earth(?, ?), ll_to_earth(latitude, longitude)) <= ?
+	ORDER BY distance
+`
 	if err := h.db.Raw(query,
-		req.Latitude, req.Longitude,
-		req.Latitude, req.Longitude, req.Radius).Scan(&warehouses).Error; err != nil {
+		req.Latitude, req.Longitude, // Para el SELECT
+		req.Latitude, req.Longitude, req.Radius, // Para earth_box
+		req.Latitude, req.Longitude, req.Radius, // Para filtrar la distancia real
+	).Scan(&warehouses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener almacenes", "detalles": err.Error()})
 		return
 	}

@@ -27,7 +27,14 @@ func main() {
 	err := pg.DB.AutoMigrate(
 		&models.User{},
 		&models.Provider{},
+		&models.DroneModel{},
 		&models.Drone{},
+		&models.Warehouse{},
+		&models.Product{},
+		&models.Shipment{},
+		&models.Client{},
+		&models.Budget{},
+		&models.BudgetTransaction{},
 	)
 	if err != nil {
 		log.Fatal("Error realizando las migraciones: ", err)

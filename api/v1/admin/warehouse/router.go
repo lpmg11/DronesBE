@@ -13,8 +13,8 @@ func RegisterRoutes(r *gin.RouterGroup, h *WarehouseHandler, token *services.Tok
 	warehouseGroup.Use(middleware.AuthMiddleware(token))
 
 	{
-		warehouseGroup.POST("/", h.CreateWarehouse)
-		warehouseGroup.GET("/", h.GetWarehouses)
+		warehouseGroup.POST("", h.CreateWarehouse)
+		warehouseGroup.GET("", h.GetWarehouses)
 		warehouseGroup.POST("/proximity", h.GetWarehousesByProximity)
 	}
 }
